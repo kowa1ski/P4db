@@ -20,6 +20,20 @@ public class P4dbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
+        // Con los campos nombrados ya en el Contract vamos a
+        // terminar este método.
+
+        // Debemos crear el String para crear la base de datos.
+
+        // Creamos la sentencia SQL
+        String SQL_CREATE_TABLE = "CREATE TABLE " + P4dbContract.P4dbEntry.TABLE_NAME
+                + " ("  // Y ahora las columnas
+                + P4dbContract.P4dbEntry.CN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + P4dbContract.P4dbEntry.CN_NOMBRE + " TEXT NOT NULL, "
+                + P4dbContract.P4dbEntry.CN_PESO + " INTEGER);" ;
+
+        // Y ejecutamos la sentencia invocando al , db , de este método.
+        db.execSQL(SQL_CREATE_TABLE);
     }
 
     @Override
