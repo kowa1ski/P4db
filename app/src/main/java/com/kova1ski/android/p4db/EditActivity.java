@@ -1,10 +1,13 @@
 package com.kova1ski.android.p4db;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import com.kova1ski.android.p4db.data.P4dbHelper;
 
 public class EditActivity extends AppCompatActivity {
 
