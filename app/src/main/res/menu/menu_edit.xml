@@ -8,5 +8,19 @@
 
     <!-- Para agregar el item he tenido que arrastrarlo al dibujo,
     no me ha servido arrastrarlo al tree. -->
-    <item android:title="Item" />
+    <item
+        android:id="@+id/edit_menu_item_molon"
+        android:icon="@drawable/ic_looks_black_24dp"
+        android:title="Item"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/edit_menu_item_Edit_or_Agregar_OK"
+        android:icon="@drawable/ic_done_all_white_24dp"
+        android:title="Item"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/edit_menu_item_deleteBasura"
+        android:icon="@drawable/ic_delete_forever_black_24dp"
+        android:title="Item"
+        app:showAsAction="always" />
 </menu>
