@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- La siguiente cabecera la he copiado del otro menú -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.kova1ski.android.p4db.EditActivity">
+
+    <!-- Para agregar el item he tenido que arrastrarlo al dibujo,
+    no me ha servido arrastrarlo al tree. -->
+    <item android:title="Item" />
+</menu>
