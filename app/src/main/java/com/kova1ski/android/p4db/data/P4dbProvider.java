@@ -27,9 +27,24 @@ public class P4dbProvider extends ContentProvider {
         uriMatcher.addURI(P4dbContract.CONTENT_AUTHORITY, P4dbContract.PATH_SEGMENT, SINGLE_ITEM_ID);
     }
 
+    // Hay que declarar el objeto dbHelper
+    private P4dbHelper dbHelper;
+
     @Override
     public boolean onCreate() {
-        return false;
+
+        // En el onCreate del Provider está el acceso a la base de datos
+        // así que vamos a nombrarlo. Afuera nombramos el objeto y aquí ya
+        // lo inicializamos y le retornamos un true a la función.
+
+        // NOTA --> que digo yo que lo de getContext es porque es un Provider
+        // y tiene que escoger el contexto de donde quiera que sea llamado,
+        // o sea, de otro sitio que no es este. Es por eso que no se le
+        // marca el contexto sino que se llama a , getContext() , para que
+        // lo obtenga de donde está trabajando realmente.
+        dbHelper = new P4dbHelper(getContext());
+
+        return true;
     }
 
     @Nullable
