@@ -1,9 +1,11 @@
 package com.kova1ski.android.p4db.data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -24,7 +26,8 @@ public class P4dbProvider extends ContentProvider {
     // Y dejamos hechas las dos direcciones de acceso
     static {
         uriMatcher.addURI(P4dbContract.CONTENT_AUTHORITY, P4dbContract.PATH_SEGMENT, TODA_LA_TABLA);
-        uriMatcher.addURI(P4dbContract.CONTENT_AUTHORITY, P4dbContract.PATH_SEGMENT, SINGLE_ITEM_ID);
+        // ATENTOS hemos modificado este último path porque es obligatorioponerle , "/#" ,.
+        uriMatcher.addURI(P4dbContract.CONTENT_AUTHORITY, P4dbContract.PATH_SEGMENT + "/#", SINGLE_ITEM_ID);
     }
 
     // Hay que declarar el objeto dbHelper
@@ -50,7 +53,57 @@ public class P4dbProvider extends ContentProvider {
     @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-        return null;
+
+        // Declaramos el cursor. CURSOR QUE AL FINAL ES EL , RETURN ,.
+        // Es el objetivo de esta función.
+        Cursor cursor;
+
+        // Para este cursor, el que yo llamo EL CURSOR PREGUNTANTE,
+        // es sencillo. Accedemos a la base en modo LECTURA(pa qué más)
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        /**
+         * A este método llegamos con una uri, se ve que es pasada aquí.
+         * Esta uri que tenemos aquí, que nos pasan, la tenemos que leer
+         * y tenemos que ver cómo termina para ver a qué se refiere. Para ello
+         * LA VAMOS A FILTRAR por el URIMATCHER. Él, el urimatcher la
+         * engullirá e interpretará. Una vez que ha pasado por el urimatcher
+         * ya sólo tenemos que preguntar al urimatcher qué terminación le
+         * ha asignado con el , int , ese de 100 ó 101.
+          */
+        int match = uriMatcher.match(uri);
+        switch (match){
+            case TODA_LA_TABLA:
+                // toda la tabla, es solicitar el cursor a pelo, sin modificar
+                // ninguno de los parámetros que nos pasan.
+                cursor = db.query(P4dbContract.P4dbEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                // ahora el break, el cursor que sea, este o el siguiente, ya se envía
+                // de retorno al final del método.
+                break;
+            case SINGLE_ITEM_ID:
+                // caso singular, cargamos el cursor con un sólo item.
+                // Para este caso hay que modificar la selección para ajustarla
+                // a que pregunte el _id en el SELECTION y también hay que decirle QUÉ _id es el que
+                // queremos en el selectionArgs.
+                selection = P4dbContract.P4dbEntry.CN_ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                // Venga ya está. En este caso pues el cursor igual con lo anterior modificado
+                cursor = db.query(P4dbContract.P4dbEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+            default:
+                throw new IllegalArgumentException("No se puede construir la query" +
+                        "por estar tratando con la URI desconocida: " + uri);
+        }
+
+        // Tod parece que está controlado. Tod parece que ha salido bien así
+        // que, antes de retornar el cursor con toda la información, hay que
+        // decirle a los LISTENERS que algo ha cambiado.
+        // Para hacerlo LE DECIMOS AL CURSOR que sea él el que notifique
+        // los cambios que están sucediendo.
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+
+        // ya no retornamos false, retornamos el cursor.
+        return cursor;
     }
 
     @Nullable
