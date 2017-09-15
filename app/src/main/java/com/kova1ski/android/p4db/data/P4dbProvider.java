@@ -27,6 +27,13 @@ public class P4dbProvider extends ContentProvider {
     static {
         uriMatcher.addURI(P4dbContract.CONTENT_AUTHORITY, P4dbContract.PATH_SEGMENT, TODA_LA_TABLA);
         // ATENTOS hemos modificado este último path porque es obligatorioponerle , "/#" ,.
+        // Y LA EXPLICACIÓN YA LA TENGO CRISTALINA. ES PORQUE ES SIMPLEMENTE UN PATRÓN de uri,
+        // el UriMatcher compara la URI con estos dos patrones y así identifica qué tipo de uri
+        // es la que tenemos enfrente. Para este segundo patrón le estamos diciendo al urimatcher que
+        // una de las formas posibles de la uri es esta, que, después del path, la uri lleve añadido
+        // un slash-barra seguido de un número. Y un número el Urimatcher entiende que es una #.
+        // Si después del path no lleva nada, o sea que ahí se acaba la uri, es que estamos en el caso
+        // anterior y en esta app se trata de una uri que quiere afectar a toda la tabla.
         uriMatcher.addURI(P4dbContract.CONTENT_AUTHORITY, P4dbContract.PATH_SEGMENT + "/#", SINGLE_ITEM_ID);
     }
 
@@ -109,7 +116,18 @@ public class P4dbProvider extends ContentProvider {
     @Nullable
     @Override
     public String getType(@NonNull Uri uri) {
-        return null;
+
+        final int match = uriMatcher.match(uri);
+        switch (match) {
+            case TODA_LA_TABLA:
+                // Devolvemos el String que es una dirección
+                return P4dbContract.P4dbEntry.CONTENT_LIST_TYPE;
+            case SINGLE_ITEM_ID:
+                return P4dbContract.P4dbEntry.CONTENT_ITEM_TYPE;
+            default:
+                throw new IllegalArgumentException("Desconocida uri "
+                + uri + " con match " + match);
+        }
     }
 
     @Nullable
