@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 /**
  * Created by Usuario on 12/09/2017.
@@ -133,7 +134,65 @@ public class P4dbProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        return null;
+
+        // La única manera de insertar un registro nuevo en la tabla es
+        // llamando actuar en toda la tabla. Es por ello que la Uri que
+        // se no s pasa tiene que ser de toda la tabla y el ContentValues
+        // contendrá los valores del nuevo registro. Entonces está claro que
+        // la Uri que se nos pasa tiene un patrón que es el de toda la tabla
+        // y es por eso que necesitamos averiguarlo con el uriMatcher que
+        // nos arrojará un valor de 100 midiendo el , match,.
+
+        // Luego entonces, medimos la Uri que se nos está pasando.
+        final int match = uriMatcher.match(uri);
+        switch (match){
+            case TODA_LA_TABLA:
+                return insertNewItem(uri, values);
+            default:
+                throw new IllegalArgumentException("La inserción no es" +
+                        "soportada para la uri " + uri);
+        }
+    }
+
+    private Uri insertNewItem(Uri uri, ContentValues values) {
+
+        // Un requisito es que el nombre no sea null. Lo chequeamos.
+        String nombreQueComprobamos = values.getAsString(P4dbContract.P4dbEntry.CN_NOMBRE);
+        if (nombreQueComprobamos == null){
+            throw new IllegalArgumentException("ERROR, el nombre es null");
+        }
+        // El otro campo no hace falta chequearlo porque puede ser null.
+
+        // Vamos allá.
+        // Accedemos a la base
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        // ejecutamos la inserción Y AL TIEMPO ATRAPAMOS EL RETORNO que
+        // es el número de filas afectadas, vamos, uno en este caso.
+        long id = db.insert(P4dbContract.P4dbEntry.TABLE_NAME, null, values);
+
+        // Ahora comprobamos que la inserción ha sido correcta
+        if (id == -1){
+            Log.e("TAG_PROVIDER", "ERROR EN LA INSERCIÓN, VALOR -1 al " +
+                    "intentar insertar la uri: " + uri);
+        }
+
+        // Si ya hemos pasado los filtros y tod ha ido bien, ya tenemos insertado
+        // el nuevo registro.
+        // ESTE MÉTODO RETORNA UNA URI. LA URI DE LA NUEVA ROW.
+
+        // Antes del retorno notificamos el cambio. Le damos la uri que
+        // ha cambiado
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        // Evidentemente retornamos la uri, la nueva uri que construimos
+        // a partir de la de antes, que es de la tabla(recordamos? claro que sí),
+        // y le añadimos la variable que hemos creado y que contiene la
+        // fila row que hemos creado nueva.
+        return ContentUris.withAppendedId(uri, id);
+
+
+
+
     }
 
     @Override
@@ -146,3 +205,14 @@ public class P4dbProvider extends ContentProvider {
         return 0;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
