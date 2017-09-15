@@ -24,6 +24,14 @@ public class P4dbContract {
     // Creamos una clase interna ENTRY para la tabla y sus columnas.
     public static final class P4dbEntry implements BaseColumns {
 
+        // Añadimos la dirección de la tabla en una URI para poder
+        // acceder rápidamente a esta dirección en forma de URI cuando
+        // por ejemplo tengamos que agregar un nuevo item. Cuando ejecutamos
+        // el método de agregar(o editar_agregar o como lo quiera llamar) pues
+        // tengo que llamar al Resolver y pasarle el ContentValues y también
+        // ESTA URI con la dirección de la tabla.
+        public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_SEGMENT);
+
         // Nombre de la tabla
         public static final String TABLE_NAME = "p4dbtabla";
 
