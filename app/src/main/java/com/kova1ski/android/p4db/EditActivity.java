@@ -107,18 +107,24 @@ public class EditActivity extends AppCompatActivity {
         Uri uriQueDevuelveElProvider =
                 getContentResolver().insert(P4dbContract.P4dbEntry.CONTENT_URI, contentValues);
 
+        // Bueno pues ya hemos hecho comit para averiguar que la base se crea
+        // y así lo hemos conseguido comprobándolo directamente
+        // en el teléfono. Aquí sólo queda, en este primer paso, un
+        // pequeño detalle. Simplemente vamos a comprobar con este código
+        // que el registro se ha añadido correctamente y se lo vamos a
+        // decir al usuario.
 
-
-
-
+        // Comprobamos la URI devuelta y, dependiendo de la misma, sabremos
+        // si tod ha estado correcto o no y, en consecuencia vamos a
+        // generar unos Toast.
+        if (uriQueDevuelveElProvider == null) {
+            Toast.makeText(this, "ERROR uri " + uriQueDevuelveElProvider
+                    + " que ha devuelto el provider es " +
+                    "incorrecta", Toast.LENGTH_SHORT).show();
+        } else {
+            // Si no es null la uri, es que está bien.
+            Toast.makeText(this, "REGISTRO " +
+                    "AÑADIDO CORRECTAMENTE", Toast.LENGTH_SHORT).show();
+        }
     }
 }
-
-
-
-
-
-
-
-
-
