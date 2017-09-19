@@ -1,6 +1,8 @@
 package com.kova1ski.android.p4db;
 
+import android.app.LoaderManager;
 import android.content.Intent;
+import android.content.Loader;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -9,9 +11,21 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Object> {
+
+    // El cursor adapter ya está completado. Así que aquí, lo
+    // primero es declararlo.
+    P4dbCursorAdaper p4dbCursorAdaper;
+
+    // Declaramos también el listView directamente en el onCreate aunque
+    // podríamos hacerlo aquí pero nos ahorramos este ámbito así.
+
+    // Nos acordamos también del loader que va a gestionarnos el tema de
+    // la carga en segundo plano y vamos a inicializar su parámetro a 0.
+    private static final int ITEMS_LOADER = 0 ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +42,23 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        // Ahora dentro del onCreate, vamos a inicializar los objetos que acabamos de declarar que
+        // son el adaptador y el listview.
+        // EL CONTEXTO ES ESTE MISMO Y el cursor se lo PASAMOS EN NULL.
+        p4dbCursorAdaper = new P4dbCursorAdaper(this, null);
+        // asociamos la lista con el xml.
+        ListView listViewItemsEnXml = (ListView) findViewById(R.id.listViewItemsMain);
+
+        // Y montamos el adaptador en el listView
+        listViewItemsEnXml.setAdapter(p4dbCursorAdaper);
+
+        // Ahora, ya por último el loader. Lo inicializamos conscientes de que, por un lado, ya
+        // sólo nos falta implementar esto y por otro que ESTE THIS dispara toda una secuencia
+        // que , implements , y genera los métodos automáticamente.
+        getLoaderManager().initLoader(ITEMS_LOADER, null, this);
+
+
     }
 
     // NOTA IMPORTANTE ---- Sobre el inflate del MENU. este método es únicamente
@@ -62,5 +93,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public Loader<Object> onCreateLoader(int id, Bundle args) {
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Object> loader, Object data) {
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Object> loader) {
+
     }
 }
