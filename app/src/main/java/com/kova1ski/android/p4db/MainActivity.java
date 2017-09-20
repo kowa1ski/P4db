@@ -3,6 +3,7 @@ package com.kova1ski.android.p4db;
 import android.app.LoaderManager;
 import android.content.Intent;
 import android.content.Loader;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -14,7 +15,7 @@ import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Object> {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     // El cursor adapter ya está completado. Así que aquí, lo
     // primero es declararlo.
@@ -96,17 +97,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     @Override
-    public Loader<Object> onCreateLoader(int id, Bundle args) {
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return null;
     }
 
     @Override
-    public void onLoadFinished(Loader<Object> loader, Object data) {
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
     }
 
     @Override
-    public void onLoaderReset(Loader<Object> loader) {
+    public void onLoaderReset(Loader<Cursor> loader) {
 
     }
 }
