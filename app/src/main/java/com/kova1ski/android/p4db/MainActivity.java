@@ -1,6 +1,7 @@
 package com.kova1ski.android.p4db;
 
 import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
@@ -14,6 +15,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.kova1ski.android.p4db.data.P4dbContract;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -96,18 +99,66 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Lo primero es el onCreate del loader. Le tenemos que decir aquello
+     * que queremos que haga cuando se le llame.
+     *
+     * @param id        Este parámetro no lo usamos
+     * @param args      Este otro parámetro tampoco lo vamos a usar
+     * @return          retornamos un CursorLoader
+     */
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return null;
-    }
+
+       // Definimos un projection que indica las columnas que
+        // vamos a usar
+         String[] projection = {
+                 P4dbContract.P4dbEntry._ID,
+                 P4dbContract.P4dbEntry.CN_NOMBRE,
+                 P4dbContract.P4dbEntry.CN_PESO
+         };
+
+         // Este loader ejecutará el método QUERY del ContentProvider en
+        // un hilo en background.
+        // Y eso mismo es lo que retornamos
+        return new CursorLoader(this,               // Contexto
+                P4dbContract.P4dbEntry.CONTENT_URI, // Uri de la tabla
+                projection,                         // Columnas
+                null,                               // cláusula
+                null,                               // no selection arguments
+                null);                              // default short order
+    } // Ok, hecho.
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 
+        // Recordamos que estamos trabajando en segundo plano, en
+        // otro hilo.
+        // Cuando finaliza de hacer lo que le hemos dicho en
+        // el onCreate, o sea que el cursor lo tenemos cargadito :-)
+        // pues entonces lo montamos en el adapter. Mira para
+        // hacerlo más claro voy a cambiar el nombre de la variable Cursor
+        // y la voy a cambiar de data->cursor, así lo entenderemos mejor.
+        p4dbCursorAdaper.swapCursor(cursor);
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
+        // En este método reseteamos el cursor. Si nos fijamos
+        // es igual que el mismo método que el finished pero a este
+        // no le pasan el cursor. Adivinas cómo se resetea si no
+        // tenemos ese parámetro cursor?? PUES CLARO!! Lo pasamos
+        // pero en null ;-).
+        p4dbCursorAdaper.swapCursor(null);
     }
 }
+
+
+
+
+
+
+
+
+
