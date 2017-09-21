@@ -1,10 +1,12 @@
 package com.kova1ski.android.p4db;
 
 import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -13,6 +15,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -57,12 +60,41 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         // Y montamos el adaptador en el listView
         listViewItemsEnXml.setAdapter(p4dbCursorAdaper);
 
+        // Justo despues del adaptador y justo antes del initloader, vamos
+        // a insertar un listener para escuchar las pulsaciones en los items
+        // de la lista.
+        // Notamos que primero ponemo la lista y luego PUNTO setOncli... etc y
+        // ya dentro del paréntesis le marcamos new OnCli... etc.
+        listViewItemsEnXml.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                // Tod lo generado se queda como está y vamos a colocar un
+                // intent que es el que se llevará la información que aquí se
+                // recoja a la siguiente pantalla.
+                Intent intent = new Intent(MainActivity.this, EditActivity.class);
+
+                // Este escuchador es un listener de items. Nos fijamos entonces
+                // que uno de los parámetros que se nos pasan aquí dentro es el
+                // id. Ese id es evidentemente nuestro item. Bien pues ya lo tenemos
+                // tod porque montamos una uri que apunte directamente a ese item
+                // y ya tendriamos una dirección completa y exacta del item.
+                Uri currentItemUri = ContentUris.withAppendedId(P4dbContract.P4dbEntry.CONTENT_URI, id);
+
+                // Y ahora ya MUY MUY SENCILLO :-)
+                // Metemos esa información en el intent para que se lo lleve a donde
+                // quiera que vaya y.... lo enviamos a donde queremos!!! jajaj. Listo!
+                // (( Cuando ponemos , intent , al dar al punto(.) ya el Studio nos sugiere
+                // el método adecuado. ))
+                intent.setData(currentItemUri);
+                startActivity(intent);
+            }
+        });
+
         // Ahora, ya por último el loader. Lo inicializamos conscientes de que, por un lado, ya
         // sólo nos falta implementar esto y por otro que ESTE THIS dispara toda una secuencia
         // que , implements , y genera los métodos automáticamente.
         getLoaderManager().initLoader(ITEMS_LOADER, null, this);
-
-
     }
 
     // NOTA IMPORTANTE ---- Sobre el inflate del MENU. este método es únicamente
