@@ -1,6 +1,7 @@
 package com.kova1ski.android.p4db;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
@@ -25,6 +26,10 @@ public class EditActivity extends AppCompatActivity {
     private String nombre;
     private int peso;
 
+    // Declaramos aquí el currentItemUri con el mismo nombre que en la otra
+    // actividad porque LO VAMOS A RESCATAR. yeeeaaaaa!!!!
+    private Uri currentItemUri;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,6 +38,25 @@ public class EditActivity extends AppCompatActivity {
         // Montamos los editText
         editTextNombre = (EditText) findViewById(R.id.editTextEditNombre);
         editTextPeso = (EditText) findViewById(R.id.editTextEditPeso);
+
+        // Si venimos a esta pantalla en modo edición tenemos que saberlo, y
+        // para eso leemos en el intent que nos ha traído hasta aquí.
+        Intent intent = getIntent(); // hemos rescatado el intent
+        currentItemUri = intent.getData(); // LO TENEMOS!!
+
+        // Vamos a probarlo
+        if (currentItemUri == null){
+            // Evidentemente, si es null, es que NO viene en modo edición
+            // sino que ha venido con el botón de agregar.
+            // Vamos a decirle que haga algo, va.
+            setTitle("NUEVO REGISTRO");
+        } else {
+            // Este es el caso en que NO ES null, sino que viene cargadito :-)
+            // Vamos a decirle que cambie el título.
+            setTitle("EDICIÓN DE ITEM");
+        }
+
+
     }
 
     // Vamos a inflar el menú, FUERA DEL onCreate.
