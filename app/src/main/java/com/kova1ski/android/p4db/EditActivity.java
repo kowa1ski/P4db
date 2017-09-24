@@ -144,32 +144,73 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         contentValues.put(P4dbContract.P4dbEntry.CN_NOMBRE, nombre);
         contentValues.put(P4dbContract.P4dbEntry.CN_PESO, peso);
 
-        // LO TENEMOS TOD PARA LA AGREGACIÓN.
-        // Al Resolver hay que pasarle una URI y el contentValues. La
-        // URI será la uri de la tabla.
-        // También recogeremos lo que nos devuelve el Provider que
-        // ya sabemos que es una uri conteniendo la row creada.
-        Uri uriQueDevuelveElProvider =
-                getContentResolver().insert(P4dbContract.P4dbEntry.CONTENT_URI, contentValues);
 
-        // Bueno pues ya hemos hecho comit para averiguar que la base se crea
-        // y así lo hemos conseguido comprobándolo directamente
-        // en el teléfono. Aquí sólo queda, en este primer paso, un
-        // pequeño detalle. Simplemente vamos a comprobar con este código
-        // que el registro se ha añadido correctamente y se lo vamos a
-        // decir al usuario.
 
-        // Comprobamos la URI devuelta y, dependiendo de la misma, sabremos
-        // si tod ha estado correcto o no y, en consecuencia vamos a
-        // generar unos Toast.
-        if (uriQueDevuelveElProvider == null) {
-            Toast.makeText(this, "ERROR uri " + uriQueDevuelveElProvider
-                    + " que ha devuelto el provider es " +
-                    "incorrecta", Toast.LENGTH_SHORT).show();
+        // Es hora de diferenciar si lo que queremos hacer con este botón
+        // es editar o agregar a un nuevo registro los datos que estamos leyendo
+        // de los editText. Es muy sencillo joder. El currentItemUri nos dirá
+        // qué es lo que estamos intentando conseguir. Así que sin más, medimos
+        // esa uri y ya. Evidentemente, metemos tod el código de agregación en
+        // el interior del if para poder marcar caminos diferentes.
+        // ¿Sería interesante hacerlo con un switch case en la próxima
+        // práctica??.
+        if (currentItemUri == null) {
+            // LO TENEMOS TOD PARA LA AGREGACIÓN.
+            // Al Resolver hay que pasarle una URI y el contentValues. La
+            // URI será la uri de la tabla.
+            // También recogeremos lo que nos devuelve el Provider que
+            // ya sabemos que es una uri conteniendo la row creada.
+            Uri uriQueDevuelveElProvider =
+                    getContentResolver().insert(P4dbContract.P4dbEntry.CONTENT_URI, contentValues);
+
+            // Bueno pues ya hemos hecho comit para averiguar que la base se crea
+            // y así lo hemos conseguido comprobándolo directamente
+            // en el teléfono. Aquí sólo queda, en este primer paso, un
+            // pequeño detalle. Simplemente vamos a comprobar con este código
+            // que el registro se ha añadido correctamente y se lo vamos a
+            // decir al usuario.
+
+            // Comprobamos la URI devuelta y, dependiendo de la misma, sabremos
+            // si tod ha estado correcto o no y, en consecuencia vamos a
+            // generar unos Toast.
+            if (uriQueDevuelveElProvider == null) {
+                Toast.makeText(this, "ERROR uri " + uriQueDevuelveElProvider
+                        + " que ha devuelto el provider es " +
+                        "incorrecta", Toast.LENGTH_SHORT).show();
+            } else {
+                // Si no es null la uri, es que está bien.
+                Toast.makeText(this, "REGISTRO " +
+                        "AÑADIDO CORRECTAMENTE", Toast.LENGTH_SHORT).show();
+            }
         } else {
-            // Si no es null la uri, es que está bien.
-            Toast.makeText(this, "REGISTRO " +
-                    "AÑADIDO CORRECTAMENTE", Toast.LENGTH_SHORT).show();
+            // Bueno, pues ya estamos editando. Lo bueno es que ya lo tenemos tod
+            // así que sin más venga. Editar es UPDATEAR.
+            // SUPERSENCILLO. Le pasamos lo que tenemos y lo demás en null porque
+            // la uri ya está apuntando directamente al currentItemUri, o sea,
+            // al item que actualmente estamos tratando de UPDATEAR y con eso
+            // ya tenemos suficiente porque SERÁ EN EL PROVIDER DONDE desgranaremos
+            // esa información y haremos el trabajo de chinos. Aquí es fácil,
+            // simplemente le pasamos lo que tenemos y allí en el provider ya
+            // arreglamos tod.
+
+            // En este caso, el provider nos devuelve el número de filas afectadas
+            // con este método. Sólo tendríamos que ir al update del provider en virgen
+            // simplemente y ver que el valor que devuelve es 0. La conclusión es de
+            // sentido común.
+            int rowsAfected = getContentResolver().update(currentItemUri, contentValues, null, null);
+
+            // Ahora medimos si tod ha salido bien.
+            if (rowsAfected == 0){
+                // Si no hay filas updateadas, algo ha salido mal.
+                Toast.makeText(this, "EDICIÓN DE ITEM FALLIDA", Toast.LENGTH_SHORT).show();
+            } else {
+                // Si sí que ha habido filas updateadas, es que tod ha salido bien.
+                // Habrá sido una claro, en nuestro caso.
+                Toast.makeText(this, "EDICIÓN REALIZADA CON ÉXITO", Toast.LENGTH_SHORT).show();
+
+                // y DE AQUÍ NOS VAMOS AL PROVIDER A RELLENAR AQUEL MÉTODO AL QUE
+                // ESTAMOS RECLAMANDO DESDE AQUÍ Y QUE HASTA ESTE PASO NO HEMOS COMPLETADO.
+            }
         }
     }
 

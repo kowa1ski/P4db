@@ -202,17 +202,89 @@ public class P4dbProvider extends ContentProvider {
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+
+        // Más o menos como el insert. Comenzamos por pasos sencillos.
+        // Venga, vamos. Tenemos que nos pasan una uri. Vamos a comprobar qué
+        // tipo de uri es metiéndole el urimatcher para que identifique el patrón
+        // que tenemos enfrente.
+        final int match = uriMatcher.match(uri);
+        switch (match){
+            case TODA_LA_TABLA:
+                // Esto no lo usamos en esta app. Serviría si quisiéramos
+                // resetear todos los pesos de las mascotas(en la app de
+                // mascotas :-) ).
+                // Y como no sirve de nada y hay que retornar un número
+                // pues, por no hacerlo de manera directa desde aquí, que bien
+                // se podría, lo pasamos al método que vamos a crear al efecto.
+                return updateItem(uri, values, selection, selectionArgs);
+            // Y ahora el que nos interesa de verdad.
+            case SINGLE_ITEM_ID:
+                // Para este caso debemos extrar el _id de la URI para identificar
+                //el item en concreto que queremos updatear. Luego, en la selección
+                // haremos , "_id=?" , y también los selection arguments serán un
+                // String Array conteniendo el ID actual.
+                // En el contenedor de valores ContentValues ya nos vendrán
+                // los datos a cambiar. Eso último se lo pasamos tal cual, claro.
+                //
+                // Venga, le decimos que queremos updatear los registros en base
+                // a su _id.
+                // Esto se hace en el selection, se le dice eso mismo: _id=?
+                selection = P4dbContract.P4dbEntry.CN_ID + "=?";
+                // Y el selectionArgs le pasa ese argumento. Y qué _id es?. Pues la
+                // extraemos de la uri que nos pasan que la contiene.
+                selectionArgs = new String[] {
+                        String.valueOf(ContentUris.parseId(uri))
+                };
+
+                // Y con estos parámetros modificados ya lo tenemos tod.
+                // Al igual que en el otro caso nos vamos a apoyar en el método
+                // que nos sirve de auxiliar de este. Evidentemente le estamos
+                // pasando la misma instrucción que en el caso anterior pero
+                // con los parámetros interesantes ya modificados.
+
+                // De esta forma el siguiente método updateItem que hemos creado
+                // recibe los mismo tod el rato, en un caso o en el otro, desde
+                // este método pero estos parámetros que nos interesan ya están
+                // modificados y NO COMO EN EL CASO ANTERIOR que están pasando
+                // tal cual nos llegan.
+                return updateItem(uri, values, selection, selectionArgs);
+            default:
+                // como no, metemos el default para capturar una
+                // eventual excepción.
+                throw new IllegalArgumentException("UPDATE no es soportada para la uri " + uri);
+        }
+    }
+
+    // FÍJATE QUÉ PASADA.
+    // ACABO DE CREAR EL MÉTODO CON LA BOMBILLA Y ÉL SOLITO YA SABE QUE TIENE
+    // QUE DEVOLVER UN INT.
+    // QUÉ GUAY, QUÉ FELICIDAD.
+    private int updateItem(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+        // VENGAAAA !!!! qué esto ya está chupado.
+        // Vamos a coger los parámetros que nos están pasando y ya está, vamos
+        // a UPDATEAR.
+
+        // Accedemos a la base en modo escritura.
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+
+        // Y YA ESTÁAAAAA JODER.
+        // Le damos el UPDATEADO ya.
+        int filasUpdateadas = database.update(P4dbContract.P4dbEntry.TABLE_NAME,
+                values, selection, selectionArgs);
+
+        // Ha sido muy muy sencillo. Qué nos queda? poco.
+        // Hay que
+        // DECIR A TODOS LOS LISTERNERS QUE ALGO HA CAMBIADO !!
+        // Aprovechamos y verificamos que hemos updateado, al menos,
+        // una fila.
+        if (filasUpdateadas != 0 ){
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
+        // Y por último retornamos el valor , int , como es lógico.
+        // Sabemos que en el método de destino también se va a comprobar
+        // que al menos una fila ha sido updateada y nos lo dirá
+        // con un Toast en el Edit, así que sin miedo.
+        return filasUpdateadas;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
