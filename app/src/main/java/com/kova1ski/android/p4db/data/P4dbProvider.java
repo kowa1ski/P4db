@@ -197,7 +197,53 @@ public class P4dbProvider extends ContentProvider {
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+        // Retornamos el número de filas que borramos.
+        // Estamos recibiendo la URI
+        // Debemos modificar la claúsula y los argumentos, en nuestro caso.
+
+        // Empezamos.
+        // Accedemos a la base
+        SQLiteDatabase database = dbHelper.getWritableDatabase();
+
+        // Declaramos la variable donde vamos a meter el valor de retorno.
+        int rowsDeleted;
+
+        // Comtemplamos ambos casos de Uri con el match y lo
+        // metemos en un , int , que será 100 ó 101.
+        final int match = uriMatcher.match(uri);
+        switch (match){
+            case TODA_LA_TABLA:
+                // En este caso no hay nada que modificar más. Borramos y
+                // ya está, borramos tod, claro está.
+                rowsDeleted = database.delete(P4dbContract.P4dbEntry.TABLE_NAME,
+                        null, null);
+                break;
+            case SINGLE_ITEM_ID:
+                // El caso que nos interesa. Lo de siempre.
+                selection = P4dbContract.P4dbEntry.CN_ID + "=?";
+                // Este es más jodidete porque hay que usar un parseId y
+                // tod eso pero es tod lo mismo.
+                selectionArgs = new String[]{
+                        String.valueOf(ContentUris.parseId(uri))
+                };
+                // Chupado.
+                // Y con tod hecho ya, vamos al borrado.
+                rowsDeleted = database.delete(
+                        P4dbContract.P4dbEntry.TABLE_NAME,
+                        selection,
+                        selectionArgs );
+                break;
+            default:
+                throw new IllegalArgumentException("No es posible eliminar" +
+                        "por error en tratamiento de uri " + uri);
+        }
+
+        // IMPORTANTE, YA FUERA DEL SWITCH, HAY QUE DECIR A TODOS LOS LISTENER
+        // QUE ALGO HA CAMBIADO.
+        if (rowsDeleted != 0){
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowsDeleted;
     }
 
     @Override
