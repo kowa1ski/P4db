@@ -114,13 +114,44 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
 
                  return true;
             case R.id.edit_menu_item_deleteBasura:
-                Toast.makeText(this, "BORRADO para siempre", Toast.LENGTH_SHORT).show();
-                return true;
+                // Llamamos desde aquí a una función que hará el trabajo de
+                // la eliminación del registro. Y no hace falta que
+                // le pasemos nada.
+                eliminarRegistro();
+                return true; // Esto lo dejamos
             default:
 
         }
         // Importante --- Esta línea debe permanecer
         return super.onOptionsItemSelected(item);
+    }
+
+    private void eliminarRegistro() {
+
+        // Estamos en eliminar registro, que venimos llamados desde el
+        // botón de eliminar.
+        // Antes de nada una pequeña comprobación para comprobar que
+        // la uri viene cargada y luego fácil, llamamos al provider
+        // para que elimine el currentItemuri. Allí, en el provider
+        // haremos el trabajo más elaborado. Aquí sencillo.
+        if (currentItemUri != null){
+
+            // Fácil, mandamos al provider la orden de ejecución
+            // La orden de ejecución va al provider el cual devuelve
+            // un número, el número de filas borradas por lo que lo metemos
+            // en una variable para poder medirlo después
+            int rowsDeleted = getContentResolver().delete(currentItemUri, null, null);
+
+            // Y ahora lo medimos e informamos al usuario.
+            if (rowsDeleted == 0){
+                Toast.makeText(this, "eliminación NO EFECTUADA", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "REGISTRO ELIMINADO", Toast.LENGTH_SHORT).show();
+            }
+            // IMPORTANTE BASTANTE. HAY QUE FINALIZAR LA ACTIVIDAD UNA VEZ EFECTUADA
+            // PARA VOLVER A LA PANTALLA PRINCIPAL
+            finish();
+        }
     }
 
     /**
