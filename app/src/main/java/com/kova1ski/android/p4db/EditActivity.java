@@ -3,11 +3,13 @@ package com.kova1ski.android.p4db;
 import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -114,16 +116,49 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
 
                  return true;
             case R.id.edit_menu_item_deleteBasura:
-                // Llamamos desde aquí a una función que hará el trabajo de
-                // la eliminación del registro. Y no hace falta que
-                // le pasemos nada.
-                eliminarRegistro();
+                // Hemos borrado la posibilidad de llamar directamtente desde
+                // aquí a eliminarRegistro(). Lo llamaremos desde el siguiente
+                // paso intermedio que va a ser un AlertDialog. Desde el AlertDialog
+                // decidiremos si realmente eliminamos o no.
+
+                // Creamos desde aquí la siguiente función AlertDialog y luego vamos a
+                // por ella y la completamos.
+                showDeleteAlertDialogBuilder(); // Le añado el builder para acordarme :-)
+
                 return true; // Esto lo dejamos
             default:
 
         }
         // Importante --- Esta línea debe permanecer
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showDeleteAlertDialogBuilder() {
+
+        // Construimos un AlertDialog con su propio builder.
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setMessage("ELIMINARÁS EL REGISTRO");
+        alertDialogBuilder.setPositiveButton("Si, quiero", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Claro, eliminamos el registro
+                eliminarRegistro();
+            }
+        });
+        alertDialogBuilder.setNegativeButton("NO, en verdad no quería", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // No tengo idea de por qué pero si quiero que no se haga
+                // nada, la intrucción es así
+                if (dialog != null){
+                    dialog.dismiss();
+                }
+            }
+        });
+        // Ya está el mensaje construido. Ahora sólo falta mostrarlo.
+        // Para ello voy a crear un AlertDialog y lo alimento con el builder
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
     }
 
     private void eliminarRegistro() {
