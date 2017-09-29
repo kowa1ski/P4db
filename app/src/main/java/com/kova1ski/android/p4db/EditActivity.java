@@ -14,6 +14,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -43,6 +45,34 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
     // Aquí hay que inicializar su inicio a 0.
     private static final int EXISTING_ITEM_LOADER = 0 ;
 
+    // Creamos una variable booleana para que cambie de estado cuando
+    // lo editText sean tocados touch.
+    private boolean hasTocadoLosEditText = false ; // Lo iniciamos en falso
+    // Y seguidamente y antes de que se nos olvide, vamos a declarar el
+    // listener al que vincularemos los toques en los editText.
+    //
+    // Y tenemos en cuenta que esto es una declaración del listener, es decir
+    // que es una declaración. En este momento no estamos ejecutando nada.
+    // Lo declaramos para dejarlo preparado para luego en el onCreate vincular
+    // los editText con esto y que se decida qué se hace al touchearlos.
+    View.OnTouchListener seHaTocado = new View.OnTouchListener() {
+        @Override   // esto sale solo al ser new etc.
+        public boolean onTouch(View v, MotionEvent event) {
+            // Simplemente si existe un toque, cambiamos el valor de
+            // la variable del cambio a verdadero. ES FÁCIL.
+            hasTocadoLosEditText = true;
+
+            // nombramos un Toast de control que usaremos para la
+            // comprobación del correcto funcinoamiento. En el siguiente
+            // paso lo borraremos
+            Toast.makeText(EditActivity.this, "El onTouchListener" +
+                    "funciona y hasTocadoLosEditText ha" +
+                    "cambiado su valor a " + hasTocadoLosEditText, Toast.LENGTH_SHORT).show();
+
+            return false; // desconozco el motivo pero esto se retorna false.
+        }
+    }; // y aquí se cierra y chisPun :-)
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +81,12 @@ public class EditActivity extends AppCompatActivity implements LoaderManager.Loa
         // Montamos los editText
         editTextNombre = (EditText) findViewById(R.id.editTextEditNombre);
         editTextPeso = (EditText) findViewById(R.id.editTextEditPeso);
+
+        // Justo aquí, ordenadito, debajito de los castings, vamos a
+        // poner los listeners para los editText.
+        // NO confundir onTouchListener con onClickListener
+        editTextNombre.setOnTouchListener(seHaTocado);
+        editTextPeso.setOnTouchListener(seHaTocado);
 
         // Si venimos a esta pantalla en modo edición tenemos que saberlo, y
         // para eso leemos en el intent que nos ha traído hasta aquí.
